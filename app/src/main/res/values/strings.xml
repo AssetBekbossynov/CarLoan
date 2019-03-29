@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PayDay</string>
+    <string name="app_name">Car loans</string>
 
     <string-array name="time_to_call_list">
         <item>ANYTIME</item>

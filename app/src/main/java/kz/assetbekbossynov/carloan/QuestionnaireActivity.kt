@@ -1,4 +1,4 @@
-package kz.assetbekbossynov.payday
+package kz.assetbekbossynov.carloan
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -22,15 +22,11 @@ import kotlinx.android.synthetic.main.input_fields.military as militaryInput
 import kotlinx.android.synthetic.main.input_fields.employer as employerInput
 import kotlinx.android.synthetic.main.input_fields.ssn as ssnInput
 import kotlinx.android.synthetic.main.toolbar.title as titleLayout
-import android.net.wifi.WifiManager
 import android.text.*
-import android.text.format.Formatter
 import android.widget.*
 import com.crashlytics.android.Crashlytics
 import kotlinx.android.synthetic.main.toolbar.*
 import android.net.ConnectivityManager
-import android.R.string.cancel
-import android.content.DialogInterface
 import io.fabric.sdk.android.Fabric
 import java.io.IOException
 

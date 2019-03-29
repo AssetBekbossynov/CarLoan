@@ -1,4 +1,4 @@
-package kz.assetbekbossynov.payday
+package kz.assetbekbossynov.carloan
 
 import org.junit.Test
 

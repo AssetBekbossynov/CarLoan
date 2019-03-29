@@ -1,4 +1,4 @@
-package kz.assetbekbossynov.payday
+package kz.assetbekbossynov.carloan
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle

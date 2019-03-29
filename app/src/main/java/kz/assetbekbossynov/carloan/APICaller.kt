@@ -1,4 +1,4 @@
-package kz.assetbekbossynov.payday
+package kz.assetbekbossynov.carloan
 
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient

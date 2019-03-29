@@ -13,7 +13,7 @@ repositories {
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "kz.assetbekbossynov.payday"
+        applicationId "kz.assetbekbossynov.carloan"
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 1
