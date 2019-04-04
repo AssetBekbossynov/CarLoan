@@ -24,11 +24,16 @@ import kotlinx.android.synthetic.main.input_fields.ssn as ssnInput
 import kotlinx.android.synthetic.main.toolbar.title as titleLayout
 import android.text.*
 import android.widget.*
+import android.text.format.Formatter
 import com.crashlytics.android.Crashlytics
 import kotlinx.android.synthetic.main.toolbar.*
 import android.net.ConnectivityManager
+import android.net.wifi.WifiManager
 import io.fabric.sdk.android.Fabric
+import kotlinx.android.synthetic.main.expandable_item.view.*
+import java.io.BufferedReader
 import java.io.IOException
+import java.io.InputStreamReader
 
 
 class QuestionnaireActivity : AppCompatActivity() {
@@ -117,8 +122,11 @@ class QuestionnaireActivity : AppCompatActivity() {
     lateinit var session_id: String
     internal var payday = false
 
+    var text = ""
+
     val source = "abcdefghijklmnopqrstuvwxyz0123456789"
 
+    @SuppressLint("ServiceCast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.input_fields)
@@ -139,10 +147,8 @@ class QuestionnaireActivity : AppCompatActivity() {
         militaryStatusList = ArrayList(Arrays.asList(*resources.getStringArray(R.array.military_status)))
         depositStatusList = ArrayList(Arrays.asList(*resources.getStringArray(R.array.deposit_status)))
 
-//        val wm = getApplicationContext().getSystemService(Context.WIFI_SERVICE) as WifiManager
-//        client_ip_address = Formatter.formatIpAddress(wm.connectionInfo.ipAddress)
-
-        client_ip_address = BuildConfig.IP_ADDRESS
+        val wm = getApplicationContext().getSystemService(Context.WIFI_SERVICE) as WifiManager
+        client_ip_address = Formatter.formatIpAddress(wm.connectionInfo.ipAddress)
 
         val intent = intent
 
@@ -376,7 +382,16 @@ class QuestionnaireActivity : AppCompatActivity() {
         direct_deposit.setOnClickListener { selectDepositStatus() }
         directDeposit.editText?.setOnClickListener { selectDepositStatus() }
 
-        fillFields()
+        rates.setOnClickListener {
+            rates.div_content.toggle()
+            if (rates.div_content.isExpanded){
+                rates.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up, 0)
+            }else{
+                rates.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.down, 0)
+            }
+        }
+
+//        fillFields()
     }
 
     private fun fillFields(){
@@ -412,6 +427,30 @@ class QuestionnaireActivity : AppCompatActivity() {
             bankAccountSince.editText?.setText("12")
             incomeType.editText?.setText("EMPLOYMENT")
         }
+    }
+
+    fun getTextFromFile(path: String): String {
+
+        var reader: BufferedReader? = null
+
+        try {
+            reader = BufferedReader(
+                    InputStreamReader(assets.open(path)));
+
+            text = reader.readLines().joinToString("\n")
+
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close()
+                } catch (e: IOException) {
+                    //log the exception
+                }
+            }
+        }
+        return text
     }
 
     private fun selectTimeToCall() {
@@ -505,7 +544,7 @@ class QuestionnaireActivity : AppCompatActivity() {
         dialog = builder.create()
         dialog?.setOnShowListener {
             this.let {
-                ctx -> ContextCompat.getColor(ctx, R.color.orange)
+                ctx -> ContextCompat.getColor(ctx, R.color.red)
             }.let {
                 color -> dialog?.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(color)
             }
@@ -523,7 +562,7 @@ class QuestionnaireActivity : AppCompatActivity() {
                 bankAccountFilled && bankAccountTypeFilled && directDepositFilled && ssnFilled &&
                 bankAccountSinceFilled && incomeTypeFilled){
             next.isEnabled = true
-            next.setBackgroundColor(resources.getColor(R.color.orange))
+            next.setBackgroundColor(resources.getColor(R.color.main))
         }else{
             next.isEnabled = false
             next.setBackgroundColor(resources.getColor(R.color.gray))
@@ -644,7 +683,7 @@ class QuestionnaireActivity : AppCompatActivity() {
 
             alert11?.setOnShowListener {
                 this.let {
-                    ctx -> ContextCompat.getColor(ctx, R.color.orange)
+                    ctx -> ContextCompat.getColor(ctx, R.color.black)
                 }.let {
                     color -> alert11.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(color)
                 }

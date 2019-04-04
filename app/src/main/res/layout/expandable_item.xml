@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/rounded_content_title"
+    android:paddingBottom="2dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/div_title"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:drawableEnd="@drawable/down"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:text="smth"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <net.cachapa.expandablelayout.ExpandableLayout
+        android:id="@+id/div_content"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        app:el_expanded="true"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:background="@drawable/rounded_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/div_title">
+
+        <TextView
+            android:id="@+id/info"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:textColor="@color/black"
+            android:textAlignment="textStart"
+            android:textSize="16sp"
+            android:text="Information"/>
+
+    </net.cachapa.expandablelayout.ExpandableLayout>
+
+</android.support.constraint.ConstraintLayout>

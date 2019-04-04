@@ -15,208 +15,242 @@
     <ScrollView
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:background="@color/main">
+        android:background="@color/white">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="5dp">
 
 
             <include
                 android:id="@+id/requested_amount"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/first_name"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/last_name"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/zip"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/state"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/city"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/address"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/address_since"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/birth_date"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/email"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/own_home"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/optional_item"/>
 
             <include
                 android:id="@+id/home_phone"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/work_phone"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/military"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/optional_item"/>
 
             <include
                 android:id="@+id/time_to_call"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/optional_item"/>
 
             <include
                 android:id="@+id/employer"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/job_title"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/employed_month"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/monthly_income"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/pay_date1"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/pay_date2"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/pay_frequency"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/optional_item"/>
 
             <include
                 android:id="@+id/driver_license"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/driver_license_state"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/bank_name"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/bank_phone"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/bank_aba"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/bank_account"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/bank_account_type"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/optional_item"/>
 
             <include
                 android:id="@+id/direct_deposit"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/optional_item"/>
 
             <include
                 android:id="@+id/ssn"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/bank_account_since"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/input_item"/>
 
             <include
                 android:id="@+id/income_type"
+                android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
                 layout="@layout/optional_item"/>
@@ -226,12 +260,25 @@
                 style="@style/styleBottomButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/orange"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:background="@drawable/rounded_btn"
                 android:text="Send"
                 android:textColor="@color/white"
+                android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent" />
+
+            <include
+                android:id="@+id/rates"
+                layout="@layout/expandable_item"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
         </LinearLayout>
     </ScrollView>

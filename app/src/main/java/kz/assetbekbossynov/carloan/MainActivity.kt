@@ -35,7 +35,5 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        rv.adapter = AboutAdapter(list, this)
-        rv.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
     }
 }
