@@ -56,49 +56,31 @@
         android:text="Installment Loan"
         android:textColor="@color/white"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/blog"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/pdloan" />
 
-    <!--<Button-->
-    <!--android:id="@+id/calc"-->
-    <!--android:layout_width="0dp"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_marginEnd="16dp"-->
-    <!--android:layout_marginStart="16dp"-->
-    <!--android:layout_marginTop="8dp"-->
-    <!--android:background="@color/black_transparency"-->
-    <!--android:drawableLeft="@drawable/calculator"-->
-    <!--android:drawableRight="@drawable/right"-->
-    <!--android:paddingLeft="8dp"-->
-    <!--android:paddingRight="8dp"-->
-    <!--android:text="Loan Calculator"-->
-    <!--android:textAllCaps="false"-->
-    <!--android:textColor="@color/white"-->
-    <!--android:textSize="19sp"-->
-    <!--app:layout_constraintBottom_toTopOf="@+id/textView"-->
-    <!--app:layout_constraintEnd_toEndOf="parent"-->
-    <!--app:layout_constraintHorizontal_bias="0.5"-->
-    <!--app:layout_constraintStart_toStartOf="parent"-->
-    <!--app:layout_constraintTop_toBottomOf="@+id/iloan" />-->
+    <Button
+        android:id="@+id/blog"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/rounded_btn"
+        android:drawableEnd="@drawable/right"
+        android:drawableStart="@drawable/ask"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:text="Blog"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iloan" />
 
-    <!--<TextView-->
-    <!--android:id="@+id/textView"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_marginEnd="8dp"-->
-    <!--android:layout_marginStart="8dp"-->
-    <!--android:layout_marginTop="32dp"-->
-    <!--android:drawableLeft="@drawable/ask"-->
-    <!--android:text="About Service"-->
-    <!--android:textColor="@color/white"-->
-    <!--android:textSize="18sp"-->
-    <!--app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--app:layout_constraintEnd_toEndOf="parent"-->
-    <!--app:layout_constraintHorizontal_bias="0.5"-->
-    <!--app:layout_constraintStart_toStartOf="parent"-->
-    <!--app:layout_constraintTop_toBottomOf="@+id/calc" />-->
 
 </android.support.constraint.ConstraintLayout>

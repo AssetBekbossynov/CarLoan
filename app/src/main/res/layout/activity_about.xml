@@ -25,7 +25,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/descTitle"
+                android:id="@+id/whatis"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -33,14 +33,11 @@
                 android:layout_marginEnd="8dp"
                 android:textColor="@color/black"
                 android:textStyle="bold"
-                android:text="@string/what_is_pd"
-                android:textSize="20sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:text="What is a PayDay Loan?"
+                android:textSize="20sp"/>
 
             <TextView
-                android:id="@+id/descContent"
+                android:id="@+id/whatis_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -48,11 +45,76 @@
                 android:layout_marginTop="12dp"
                 android:textColor="@color/black"
                 android:textSize="18sp"
-                android:text="fsdfsdfadfasdfasdfasfdasfsadfsadfsadfdsafdsafdasfasdfasdfsadfasdfasdfa"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/descTitle" />
+                android:text="fsdfsdfadfasdfasdfasfdasfsadfsadfsadfdsafdsafdasfasdfasdfsadfasdfasdfa" />
+
+            <TextView
+                android:id="@+id/howitworks"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:text="How does a PayDay Loan Work?"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/howitworks_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:text="fsdfsdfadfasdfasdfasfdasfsadfsadfsadfdsafdsafdasfasdfasdfsadfasdfasdfa" />
+
+            <TextView
+                android:id="@+id/dangers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:text="What are the dangers?"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/dangers_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:text="fsdfsdfadfasdfasdfasfdasfsadfsadfsadfdsafdsafdasfasdfasdfsadfasdfasdfa" />
+
+            <TextView
+                android:id="@+id/reasons"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:text="The reasons people take PayDay Loan"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/reasons_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:text="fsdfsdfadfasdfasdfasfdasfsadfsadfsadfdsafdsafdasfasdfasdfsadfasdfasdfa" />
 
         </LinearLayout>
     </ScrollView>

@@ -11,17 +11,11 @@ import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var list: ArrayList<String>
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         Fabric.with(this, Crashlytics())
-
-        list = arrayListOf(getString(R.string.what_is_pd), getString(R.string.put_fast),
-                getString(R.string.how_they_work), getString(R.string.unsecured),
-                getString(R.string.different), getString(R.string.good_idea))
 
         pdloan.setOnClickListener {
             val intent = Intent(this, QuestionnaireActivity::class.java)
@@ -35,5 +29,9 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        blog.setOnClickListener {
+            val intent = Intent(this, AboutActivity::class.java)
+            startActivity(intent)
+        }
     }
 }

@@ -26,7 +26,7 @@
         android:id="@+id/div_content"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        app:el_expanded="true"
+        app:el_expanded="false"
         android:paddingStart="8dp"
         android:paddingEnd="8dp"
         android:background="@drawable/rounded_content"
@@ -40,7 +40,7 @@
             android:id="@+id/info"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:textAlignment="textStart"
             android:textSize="16sp"
             android:text="Information"/>
