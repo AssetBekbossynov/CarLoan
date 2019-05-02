@@ -1,6 +1,7 @@
 package kz.assetbekbossynov.carloan
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.support.v7.app.AppCompatActivity
@@ -29,11 +30,16 @@ import com.crashlytics.android.Crashlytics
 import kotlinx.android.synthetic.main.toolbar.*
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
+import android.util.Log
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import io.fabric.sdk.android.Fabric
 import kotlinx.android.synthetic.main.expandable_item.view.*
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
+import java.net.SocketTimeoutException
+import java.text.SimpleDateFormat
 
 
 class QuestionnaireActivity : AppCompatActivity() {
@@ -122,6 +128,11 @@ class QuestionnaireActivity : AppCompatActivity() {
     lateinit var session_id: String
     internal var payday = false
 
+    var max: Int = 0
+    var min: Int = 100
+
+    var call = 0
+
     var text = ""
 
     val source = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -155,9 +166,11 @@ class QuestionnaireActivity : AppCompatActivity() {
         if (intent.getStringExtra("btn") == "installment"){
             tier_key = BuildConfig.TIER_KEY_INST
             payday = false
+            max = 3000
         }else if (intent.getStringExtra("btn") == "payday"){
             tier_key = BuildConfig.TIER_KEY_PD
             payday = true
+            max = 1500
         }
 
         next.setOnClickListener {
@@ -259,6 +272,10 @@ class QuestionnaireActivity : AppCompatActivity() {
         monthlyIncome.editText?.inputType = InputType.TYPE_CLASS_NUMBER
         driversLicenseState.editText?.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
         bankPhone.editText?.inputType = InputType.TYPE_CLASS_PHONE
+        bankName.editText?.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
+        bankAba.editText?.inputType = InputType.TYPE_CLASS_NUMBER
+        bankAccount.editText?.inputType = InputType.TYPE_CLASS_NUMBER
+        ssn.editText?.inputType = InputType.TYPE_CLASS_NUMBER
 
         firstName.editText?.filters = createMaxLengthFilter(128)
         lastName.editText?.filters = createMaxLengthFilter(128)
@@ -269,30 +286,6 @@ class QuestionnaireActivity : AppCompatActivity() {
         addressSince.editText?.filters = createMaxLengthFilter(3)
         bankAccountSince.editText?.filters = createMaxLengthFilter(2)
         employedMonth.editText?.filters = createMaxLengthFilter(2)
-
-        birthDate.editText?.let {
-            it.addTextChangedListener(MaskedTextChangedListener(
-                    "[0000]-[00]-[00]",
-                    true,
-                    it, null, null
-            ))
-        }
-
-        payDate1.editText?.let {
-            it.addTextChangedListener(MaskedTextChangedListener(
-                    "[0000]-[00]-[00]",
-                    true,
-                    it, null, null
-            ))
-        }
-
-        payDate2.editText?.let {
-            it.addTextChangedListener(MaskedTextChangedListener(
-                    "[0000]-[00]-[00]",
-                    true,
-                    it, null, null
-            ))
-        }
 
         homePhone.editText?.let {
             it.addTextChangedListener(MaskedTextChangedListener(
@@ -360,27 +353,49 @@ class QuestionnaireActivity : AppCompatActivity() {
         military.editText?.isFocusable = false
         ownHome.editText?.isFocusable = false
         directDeposit.editText?.isFocusable = false
+        birthDate.editText?.isFocusable = false
+        payDate1.editText?.isFocusable = false
+        payDate2.editText?.isFocusable = false
 
-        time_to_call.setOnClickListener { selectTimeToCall() }
-        timeToCall.editText?.setOnClickListener { selectTimeToCall() }
+        time_to_call.setOnClickListener { selectFromOption(timeToCallList, timeToCall.editText) }
+        timeToCall.editText?.setOnClickListener { selectFromOption(timeToCallList, timeToCall.editText) }
 
-        pay_frequency.setOnClickListener { selectPayFrequency() }
-        payFrequency.editText?.setOnClickListener { selectPayFrequency() }
+        pay_frequency.setOnClickListener { selectFromOption(payFrequencyList, payFrequency.editText) }
+        payFrequency.editText?.setOnClickListener { selectFromOption(payFrequencyList, payFrequency.editText) }
 
-        bank_account_type.setOnClickListener { selectBankAccountType() }
-        bankAccountType.editText?.setOnClickListener { selectBankAccountType() }
+        bank_account_type.setOnClickListener { selectFromOption(bankAccountTypeList, bankAccountType.editText) }
+        bankAccountType.editText?.setOnClickListener { selectFromOption(bankAccountTypeList, bankAccountType.editText) }
 
-        income_type.setOnClickListener { selectIncomeType() }
-        incomeType.editText?.setOnClickListener { selectIncomeType() }
+        income_type.setOnClickListener { selectFromOption(incomeTypeList, incomeType.editText) }
+        incomeType.editText?.setOnClickListener { selectFromOption(incomeTypeList, incomeType.editText) }
 
-        militaryInput.setOnClickListener { selectMilitaryStatus() }
-        military.editText?.setOnClickListener { selectMilitaryStatus() }
+        militaryInput.setOnClickListener { selectFromOption(militaryStatusList, military.editText) }
+        military.editText?.setOnClickListener { selectFromOption(militaryStatusList, military.editText) }
 
-        own_home.setOnClickListener { selectResidenceStatus() }
-        ownHome.editText?.setOnClickListener { selectResidenceStatus() }
+        own_home.setOnClickListener { selectFromOption(residenceStatusList, ownHome.editText) }
+        ownHome.editText?.setOnClickListener { selectFromOption(residenceStatusList, ownHome.editText) }
 
-        direct_deposit.setOnClickListener { selectDepositStatus() }
-        directDeposit.editText?.setOnClickListener { selectDepositStatus() }
+        direct_deposit.setOnClickListener { selectFromOption(depositStatusList, directDeposit.editText) }
+        directDeposit.editText?.setOnClickListener { selectFromOption(depositStatusList, directDeposit.editText) }
+
+        birth_date.setOnClickListener { showCustomDialog(birthDate.editText) }
+        birthDate.editText?.setOnClickListener { showCustomDialog(birthDate.editText) }
+
+        pay_date1.setOnClickListener { showCustomDialog(payDate1.editText) }
+        payDate1.editText?.setOnClickListener { showCustomDialog(payDate1.editText) }
+
+        pay_date2.setOnClickListener {
+            if (payDate1Filled)
+                showCustomDialog(payDate2.editText)
+            else
+                Toast.makeText(this, "Select Pay date 1 first", Toast.LENGTH_SHORT).show()
+        }
+        payDate2.editText?.setOnClickListener {
+            if (payDate1Filled && payDate1.error == null)
+                showCustomDialog(payDate2.editText)
+            else
+                Toast.makeText(this, "Select Pay date 1 first", Toast.LENGTH_SHORT).show()
+        }
 
         rates.div_title.text = "Rates and Fees"
         terms.div_title.text = "Terms of Use"
@@ -411,79 +426,16 @@ class QuestionnaireActivity : AppCompatActivity() {
             disclaimer.info.text = getTextFromFile("disclaimer.txt")
         }
 
-        rates.setOnClickListener {
-            rates.div_content.toggle()
-            if (rates.div_content.isExpanded){
-                rates.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up, 0)
-            }else{
-                rates.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.down, 0)
-            }
-        }
+        rates.setOnClickListener { toggleLayout(rates) }
+        terms.setOnClickListener { toggleLayout(terms) }
+        privacy.setOnClickListener { toggleLayout(privacy) }
+        econsent.setOnClickListener { toggleLayout(econsent) }
+        responsible.setOnClickListener { toggleLayout(responsible) }
+        marketing.setOnClickListener { toggleLayout(marketing) }
+        faq.setOnClickListener { toggleLayout(faq) }
+        disclaimer.setOnClickListener { toggleLayout(disclaimer) }
 
-        terms.setOnClickListener {
-            terms.div_content.toggle()
-            if (terms.div_content.isExpanded){
-                terms.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up, 0)
-            }else{
-                terms.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.down, 0)
-            }
-        }
-
-        privacy.setOnClickListener {
-            privacy.div_content.toggle()
-            if (privacy.div_content.isExpanded){
-                privacy.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up, 0)
-            }else{
-                privacy.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.down, 0)
-            }
-        }
-
-        econsent.setOnClickListener {
-            econsent.div_content.toggle()
-            if (econsent.div_content.isExpanded){
-                econsent.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up, 0)
-            }else{
-                econsent.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.down, 0)
-            }
-        }
-
-        responsible.setOnClickListener {
-            responsible.div_content.toggle()
-            if (responsible.div_content.isExpanded){
-                responsible.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up, 0)
-            }else{
-                responsible.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.down, 0)
-            }
-        }
-
-        marketing.setOnClickListener {
-            marketing.div_content.toggle()
-            if (marketing.div_content.isExpanded){
-                marketing.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up, 0)
-            }else{
-                marketing.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.down, 0)
-            }
-        }
-
-        faq.setOnClickListener {
-            faq.div_content.toggle()
-            if (faq.div_content.isExpanded){
-                faq.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up, 0)
-            }else{
-                faq.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.down, 0)
-            }
-        }
-
-        disclaimer.setOnClickListener {
-            disclaimer.div_content.toggle()
-            if (disclaimer.div_content.isExpanded){
-                disclaimer.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up, 0)
-            }else{
-                disclaimer.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.down, 0)
-            }
-        }
-
-//        fillFields()
+        fillFields()
     }
 
     private fun fillFields(){
@@ -491,7 +443,7 @@ class QuestionnaireActivity : AppCompatActivity() {
             requestedAmount.editText?.setText("500")
             firstName.editText?.setText("Will")
             lastName.editText?.setText("Smith")
-            zip.editText?.setText("91023")
+            zip.editText?.setText("00000")
             state.editText?.setText("CA")
             city.editText?.setText("Los Angeles")
             address.editText?.setText("123 Test address")
@@ -545,78 +497,21 @@ class QuestionnaireActivity : AppCompatActivity() {
         return text
     }
 
-    private fun selectTimeToCall() {
-        showCustomDialog(timeToCallList, timeToCall.editText)
-        timeToCall.editText?.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable) {
-                dialog?.cancel()
-            }
-        })
+    private fun toggleLayout(view: View){
+        view.div_content.toggle()
+        if (view.div_content.isExpanded){
+            view.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.up, 0)
+        }else{
+            view.div_title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.down, 0)
+        }
     }
 
-    private fun selectPayFrequency() {
-        showCustomDialog(payFrequencyList, payFrequency.editText)
-        payFrequency.editText?.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable) {
-                dialog?.cancel()
-            }
-        })
-    }
-
-    private fun selectBankAccountType() {
-        showCustomDialog(bankAccountTypeList, bankAccountType.editText)
-        bankAccountType.editText?.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable) {
-                dialog?.cancel()
-            }
-        })
-    }
-
-    private fun selectIncomeType() {
-        showCustomDialog(incomeTypeList, incomeType.editText)
-        incomeType.editText?.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable) {
-                dialog?.cancel()
-            }
-        })
-    }
-
-    private fun selectMilitaryStatus() {
-        showCustomDialog(militaryStatusList, military.editText)
-        military.editText?.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable) {
-                dialog?.cancel()
-            }
-        })
-    }
-
-    private fun selectResidenceStatus() {
-        showCustomDialog(residenceStatusList, ownHome.editText)
-        ownHome.editText?.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable) {
-                dialog?.cancel()
-            }
-        })
-    }
-
-    private fun selectDepositStatus() {
-        showCustomDialog(depositStatusList, directDeposit.editText)
-        directDeposit.editText?.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable) {
+    fun selectFromOption(list: ArrayList<String>, et: EditText?){
+        showCustomDialog(list, et)
+        et?.addTextChangedListener(object: TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
                 dialog?.cancel()
             }
         })
@@ -638,6 +533,33 @@ class QuestionnaireActivity : AppCompatActivity() {
             this.let {
                 ctx -> ContextCompat.getColor(ctx, R.color.red)
             }.let {
+                color -> dialog?.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(color)
+            }
+        }
+        dialog?.show()
+    }
+
+    private fun showCustomDialog(editField: EditText?){
+        dialog?.dismiss()
+        val builder = AlertDialog.Builder(this)
+        val layoutInflater = layoutInflater
+        val dialogView = layoutInflater.inflate(R.layout.date_picker_dialog, null)
+        builder.setView(dialogView)
+        builder.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.cancel() }
+        builder.setPositiveButton("OK") { dialog, _ ->
+            val datePicker = dialogView.findViewById<DatePicker>(R.id.date_picker)
+            val date = "${datePicker.year}-${String.format("%02d", datePicker.month+1)}-${String.format("%02d", datePicker.dayOfMonth)}"
+            editField?.setText(date)
+            dialog.cancel() }
+        dialog = builder.create()
+        dialog?.setOnShowListener {
+            this.let {
+                ctx -> ContextCompat.getColor(ctx, R.color.black) }?.let {
+                color -> dialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(color)
+            }
+            this.let {
+                ctx -> ContextCompat.getColor(ctx, R.color.red) }?.let {
                 color -> dialog?.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(color)
             }
         }
@@ -688,54 +610,148 @@ class QuestionnaireActivity : AppCompatActivity() {
                 runOnUiThread {
                     showProgressDialog("Sending...")
                 }
-                try{
                     lateinit var response: Response<CustomResponse>
                     if (payday){
-                        response = APICaller.getPayDayApi().createLoan("application/json",
-                                requestedAmount.editText?.text!!.toString(), employer.editText?.text!!.toString(),
-                                jobTitle.editText?.text!!.toString(), employedMonth.editText?.text!!.toString(),
-                                monthlyIncome.editText?.text!!.toString(), payDate1.editText?.text!!.toString(),
-                                payDate2.editText?.text!!.toString(), payFrequency.editText?.text!!.toString(),
-                                driversLicense.editText?.text!!.toString(), driversLicenseState.editText?.text!!.toString(),
-                                bankName.editText?.text!!.toString(), numberClearMask(bankPhone.editText?.text!!.toString()),
-                                bankAba.editText?.text!!.toString(), bankAccount.editText?.text!!.toString(),
-                                bankAccountType.editText?.text!!.toString(), depositStatus,
-                                firstName.editText?.text!!.toString(), lastName.editText?.text!!.toString(),
-                                ssn.editText?.text!!.toString(), birthDate.editText?.text!!.toString(),
-                                residence, address.editText?.text!!.toString(),
-                                city.editText?.text!!.toString(), state.editText?.text!!.toString(),
-                                zip.editText?.text!!.toString(), email.editText?.text!!.toString(),
-                                numberClearMask(homePhone.editText?.text!!.toString()), numberClearMask(workPhone.editText?.text!!.toString()),
-                                timeToCall.editText?.text!!.toString(), militaryStatus,
-                                addressSince.editText?.text!!.toString(), bankAccountSince.editText?.text!!.toString(),
-                                incomeType.editText?.text!!.toString(), session_id, " ", BuildConfig.DOMAIN,
-                                BuildConfig.USER_AGENT, client_ip_address, BuildConfig.AFFILIATE_ID,
-                                BuildConfig.API_KEY, tier_key).execute()
+                        try {
+                            response = APICaller.getPayDayApi().createLoan("application/json",
+                                    requestedAmount.editText?.text!!.toString(), employer.editText?.text!!.toString(),
+                                    jobTitle.editText?.text!!.toString(), employedMonth.editText?.text!!.toString(),
+                                    monthlyIncome.editText?.text!!.toString(), payDate1.editText?.text!!.toString(),
+                                    payDate2.editText?.text!!.toString(), payFrequency.editText?.text!!.toString(),
+                                    driversLicense.editText?.text!!.toString(), driversLicenseState.editText?.text!!.toString(),
+                                    bankName.editText?.text!!.toString(), numberClearMask(bankPhone.editText?.text!!.toString()),
+                                    bankAba.editText?.text!!.toString(), bankAccount.editText?.text!!.toString(),
+                                    bankAccountType.editText?.text!!.toString(), depositStatus,
+                                    firstName.editText?.text!!.toString(), lastName.editText?.text!!.toString(),
+                                    ssn.editText?.text!!.toString(), birthDate.editText?.text!!.toString(),
+                                    residence, address.editText?.text!!.toString(),
+                                    city.editText?.text!!.toString(), state.editText?.text!!.toString(),
+                                    zip.editText?.text!!.toString(), email.editText?.text!!.toString(),
+                                    numberClearMask(homePhone.editText?.text!!.toString()), numberClearMask(workPhone.editText?.text!!.toString()),
+                                    timeToCall.editText?.text!!.toString(), militaryStatus,
+                                    addressSince.editText?.text!!.toString(), bankAccountSince.editText?.text!!.toString(),
+                                    incomeType.editText?.text!!.toString(), session_id, " ", BuildConfig.DOMAIN,
+                                    BuildConfig.USER_AGENT, client_ip_address, BuildConfig.AFFILIATE_ID,
+                                    BuildConfig.API_KEY, tier_key).execute()
+                        }catch (e: SocketTimeoutException){
+                            dialog?.dismiss()
+                            Toast.makeText(baseContext, "Server error, try again later", Toast.LENGTH_LONG).show()
+                            e.printStackTrace()
+                        }catch (e: IOException){
+                            dialog?.dismiss()
+                            Toast.makeText(baseContext, "Server error, try again later", Toast.LENGTH_LONG).show()
+                            e.printStackTrace()
+                        }
                     }else{
-                        response = APICaller.getInstallmentApi().createLoan("application/json",
-                                requestedAmount.editText?.text!!.toString(), employer.editText?.text!!.toString(),
-                                jobTitle.editText?.text!!.toString(), employedMonth.editText?.text!!.toString(),
-                                monthlyIncome.editText?.text!!.toString(), payDate1.editText?.text!!.toString(),
-                                payDate2.editText?.text!!.toString(), payFrequency.editText?.text!!.toString(),
-                                driversLicense.editText?.text!!.toString(), driversLicenseState.editText?.text!!.toString(),
-                                bankName.editText?.text!!.toString(), numberClearMask(bankPhone.editText?.text!!.toString()),
-                                bankAba.editText?.text!!.toString(), bankAccount.editText?.text!!.toString(),
-                                bankAccountType.editText?.text!!.toString(), depositStatus,
-                                firstName.editText?.text!!.toString(), lastName.editText?.text!!.toString(),
-                                ssn.editText?.text!!.toString(), birthDate.editText?.text!!.toString(),
-                                residence, address.editText?.text!!.toString(),
-                                city.editText?.text!!.toString(), state.editText?.text!!.toString(),
-                                zip.editText?.text!!.toString(), email.editText?.text!!.toString(),
-                                numberClearMask(homePhone.editText?.text!!.toString()), numberClearMask(workPhone.editText?.text!!.toString()),
-                                timeToCall.editText?.text!!.toString(), militaryStatus,
-                                addressSince.editText?.text!!.toString(), bankAccountSince.editText?.text!!.toString(),
-                                incomeType.editText?.text!!.toString(), session_id, " ", BuildConfig.DOMAIN,
-                                BuildConfig.USER_AGENT, client_ip_address, BuildConfig.AFFILIATE_ID,
-                                BuildConfig.API_KEY, tier_key).execute()
+                        try {
+                            response = APICaller.getInstallmentApi().createLoan("application/json",
+                                    requestedAmount.editText?.text!!.toString(), employer.editText?.text!!.toString(),
+                                    jobTitle.editText?.text!!.toString(), employedMonth.editText?.text!!.toString(),
+                                    monthlyIncome.editText?.text!!.toString(), payDate1.editText?.text!!.toString(),
+                                    payDate2.editText?.text!!.toString(), payFrequency.editText?.text!!.toString(),
+                                    driversLicense.editText?.text!!.toString(), driversLicenseState.editText?.text!!.toString(),
+                                    bankName.editText?.text!!.toString(), numberClearMask(bankPhone.editText?.text!!.toString()),
+                                    bankAba.editText?.text!!.toString(), bankAccount.editText?.text!!.toString(),
+                                    bankAccountType.editText?.text!!.toString(), depositStatus,
+                                    firstName.editText?.text!!.toString(), lastName.editText?.text!!.toString(),
+                                    ssn.editText?.text!!.toString(), birthDate.editText?.text!!.toString(),
+                                    residence, address.editText?.text!!.toString(),
+                                    city.editText?.text!!.toString(), state.editText?.text!!.toString(),
+                                    zip.editText?.text!!.toString(), email.editText?.text!!.toString(),
+                                    numberClearMask(homePhone.editText?.text!!.toString()), numberClearMask(workPhone.editText?.text!!.toString()),
+                                    timeToCall.editText?.text!!.toString(), militaryStatus,
+                                    addressSince.editText?.text!!.toString(), bankAccountSince.editText?.text!!.toString(),
+                                    incomeType.editText?.text!!.toString(), session_id, " ", BuildConfig.DOMAIN,
+                                    BuildConfig.USER_AGENT, client_ip_address, BuildConfig.AFFILIATE_ID,
+                                    BuildConfig.API_KEY, tier_key).execute()
+                        }catch (e: SocketTimeoutException){
+                            dialog?.dismiss()
+                            Toast.makeText(baseContext, "Server error, try again later", Toast.LENGTH_LONG).show()
+                            e.printStackTrace()
+                        }catch (e: IOException){
+                            dialog?.dismiss()
+                            Toast.makeText(baseContext, "Server error, try again later", Toast.LENGTH_LONG).show()
+                            e.printStackTrace()
+                        }
                     }
                     if (response.isSuccessful){
                         val responseBody = response.body()
                         if (responseBody!!.status == "error"){
+                            if (responseBody.content != null){
+                                if (responseBody.content!!.first_name != null){
+                                    gotoErrorField(firstName, responseBody.content!!.first_name?.get(0))
+                                }
+                                if (responseBody.content!!.last_name != null){
+                                    gotoErrorField(lastName, responseBody.content!!.last_name?.get(0))
+                                }
+                                if (responseBody.content!!.zip != null){
+                                    gotoErrorField(zip, responseBody.content!!.zip?.get(0))
+                                }
+                                if (responseBody.content!!.state != null){
+                                    gotoErrorField(state, responseBody.content!!.state?.get(0))
+                                }
+                                if (responseBody.content!!.address != null){
+                                    gotoErrorField(address, responseBody.content!!.address?.get(0))
+                                }
+                                if (responseBody.content!!.address_length_months != null){
+                                    gotoErrorField(addressSince, responseBody.content!!.address_length_months?.get(0))
+                                }
+                                if (responseBody.content!!.birth_date != null){
+                                    gotoErrorField(birthDate, responseBody.content!!.birth_date?.get(0))
+                                }
+                                if (responseBody.content!!.email != null){
+                                    gotoErrorField(email, responseBody.content!!.email?.get(0))
+                                }
+                                if (responseBody.content!!.home_phone != null){
+                                    gotoErrorField(homePhone, responseBody.content!!.home_phone?.get(0))
+                                }
+                                if (responseBody.content!!.work_phone != null){
+                                    gotoErrorField(workPhone, responseBody.content!!.work_phone?.get(0))
+                                }
+                                if (responseBody.content!!.employer != null){
+                                    gotoErrorField(employer, responseBody.content!!.employer?.get(0))
+                                }
+                                if (responseBody.content!!.job_title != null){
+                                    gotoErrorField(jobTitle, responseBody.content!!.job_title?.get(0))
+                                }
+                                if (responseBody.content!!.employed_months != null){
+                                    gotoErrorField(employedMonth, responseBody.content!!.employed_months?.get(0))
+                                }
+                                if (responseBody.content!!.monthly_income != null){
+                                    gotoErrorField(monthlyIncome, responseBody.content!!.monthly_income?.get(0))
+                                }
+                                if (responseBody.content!!.pay_date1 != null){
+                                    gotoErrorField(payDate1, responseBody.content!!.pay_date1?.get(0))
+                                }
+                                if (responseBody.content!!.pay_date2 != null){
+                                    gotoErrorField(payDate2, responseBody.content!!.pay_date2?.get(0))
+                                }
+                                if (responseBody.content!!.drivers_license_number != null){
+                                    gotoErrorField(driversLicense, responseBody.content!!.drivers_license_number?.get(0))
+                                }
+                                if (responseBody.content!!.drivers_license_state != null){
+                                    gotoErrorField(driversLicenseState, responseBody.content!!.drivers_license_state?.get(0))
+                                }
+                                if (responseBody.content!!.bank_name != null){
+                                    gotoErrorField(bankName, responseBody.content!!.bank_name?.get(0))
+                                }
+                                if (responseBody.content!!.bank_phone != null){
+                                    gotoErrorField(bankPhone, responseBody.content!!.bank_phone?.get(0))
+                                }
+                                if (responseBody.content!!.bank_aba != null){
+                                    gotoErrorField(bankAba, responseBody.content!!.bank_aba?.get(0))
+                                }
+                                if (responseBody.content!!.bank_account_number != null){
+                                    gotoErrorField(bankAccount, responseBody.content!!.bank_account_number?.get(0))
+                                }
+                                if (responseBody.content!!.ssn != null){
+                                    gotoErrorField(ssn, responseBody.content!!.ssn?.get(0))
+                                }
+                                if (responseBody.content!!.bank_account_length_months != null){
+                                    gotoErrorField(bankAccountSince, responseBody.content!!.bank_account_length_months?.get(0))
+                                }
+                            }
+
                             runOnUiThread {
                                 Crashlytics.log(response.toString())
                                 dialog?.dismiss()
@@ -758,9 +774,6 @@ class QuestionnaireActivity : AppCompatActivity() {
                             Toast.makeText(baseContext, "Server error, try again later", Toast.LENGTH_LONG).show()
                         }
                     }
-                }catch (e: IOException){
-                    e.printStackTrace()
-                }
             }).start()
         }else{
             val builder1 = AlertDialog.Builder(this)
@@ -782,6 +795,15 @@ class QuestionnaireActivity : AppCompatActivity() {
             }
 
             alert11.show()
+        }
+    }
+
+    fun gotoErrorField(v: TextInputLayout, msg: String?){
+        runOnUiThread {
+            scroll.fullScroll(ScrollView.FOCUS_UP)
+            v.error = msg?.replace("_", " ")
+            v.editText?.error = "!!!"
+            Toast.makeText(this, "${msg?.replace("_", " ")}", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -807,6 +829,380 @@ class QuestionnaireActivity : AppCompatActivity() {
         dialog?.window?.setLayout(600, 275)
     }
 
+    fun checkFields(layout: TextInputLayout){
+        when(layout){
+            requestedAmount -> {
+                if (requestedAmount.editText?.text.toString() != ""){
+                    if (requestedAmount.editText!!.text.toString().toInt() < min ||
+                            requestedAmount.editText!!.text.toString().toInt() > max){
+                        requestedAmount.boxStrokeColor = resources.getColor(R.color.red)
+                        requestedAmount.editText?.error = "Range error " + min + "-" + max
+                        requestedAmount.error = "Range error " + min + "-" + max
+                    }else{
+                        requestedAmount.boxStrokeColor = resources.getColor(R.color.black)
+                        requestedAmount.editText?.error = null
+                        requestedAmount.error = null
+                    }
+                }else{
+                    requestedAmount.editText?.error = "Field must not be empty"
+                    requestedAmount.error = "Field must not be empty"
+                    requestedAmountFilled = false
+                }
+            }
+            firstName -> {
+                if (firstName.editText?.text.toString() != ""){
+                    if (!firstName.editText!!.text.toString().matches("[a-zA-Z]+".toRegex())){
+                        firstName.boxStrokeColor = resources.getColor(R.color.red)
+                        firstName.editText?.error = "Field should have only letters"
+                        firstName.error = "Field should have only letters"
+                    }else{
+                        firstName.boxStrokeColor = resources.getColor(R.color.black)
+                        firstName.editText?.error = null
+                        firstName.error = null
+                    }
+                }else{
+                    firstName.editText?.error = "Field must not be empty"
+                    firstName.error = "Field must not be empty"
+                    firstNameFilled = false
+                }
+            }
+            lastName -> {
+                if (lastName.editText?.text.toString() != ""){
+                    if (!lastName.editText!!.text.toString().matches("[a-zA-Z]+".toRegex())){
+                        lastName.boxStrokeColor = resources.getColor(R.color.red)
+                        lastName.editText?.error = "Field should have only letters"
+                        lastName.error = "Field should have only letters"
+                    }else{
+                        lastName.boxStrokeColor = resources.getColor(R.color.black)
+                        lastName.editText?.error = null
+                        lastName.error = null
+                    }
+                }else{
+                    lastName.editText?.error = "Field must not be empty"
+                    lastName.error = "Field must not be empty"
+                    lastNameFilled = false
+                }
+            }
+            zip -> {
+                if (zip.editText?.text.toString() != ""){
+                    if (zip.editText?.text.toString().length != 5){
+                        zip.editText?.error = "Zip code should consist of 5 numbers"
+                        zip.error = "Zip code should consist of 5 numbers"
+                    }else{
+                        zip.boxStrokeColor = resources.getColor(R.color.black)
+                        zip.editText?.error = null
+                        zip.error = null
+                    }
+                }
+            }
+            state -> {
+                if (state.editText?.text.toString() != ""){
+                    if (!state.editText!!.text.toString().matches("[A-Z]+".toRegex())){
+                        state.boxStrokeColor = resources.getColor(R.color.red)
+                        state.editText?.error = "Field must contain only capital letters"
+                        state.error = "Field must contain only capital letters"
+                    }else{
+                        state.boxStrokeColor = resources.getColor(R.color.black)
+                        state.editText?.error = null
+                        state.error = null
+                    }
+                }else{
+                    state.editText?.error = "Field must not be empty"
+                    state.error = "Field must not be empty"
+                    stateFilled = false
+                }
+            }
+            city -> {
+                if (city.editText?.text.toString() != ""){
+                    if (city.error != null){
+                        city.error = null
+                    }
+                }else{
+                    city.editText?.error = "Field must not be empty"
+                    city.error = "Field must not be empty"
+                    cityFilled = false
+                }
+            }
+            address -> {
+                if (address.editText?.text.toString() != ""){
+                    if (address.editText!!.text.toString().length < 2){
+                        address.boxStrokeColor = resources.getColor(R.color.red)
+                        address.editText?.error = "Invalid address"
+                        address.error = "Invalid address"
+                    }else{
+                        address.boxStrokeColor = resources.getColor(R.color.black)
+                        address.editText?.error = null
+                        address.error = null
+                    }
+                }else{
+                    address.editText?.error = "Field must not be empty"
+                    address.error = "Field must not be empty"
+                    addressFilled = false
+                }
+            }
+            addressSince -> {
+                if (addressSince.editText?.text.toString() != ""){
+                    if (addressSince.editText!!.text.toString().toInt() < 1 ||
+                            addressSince.editText!!.text.toString().toInt() > 120){
+                        addressSince.boxStrokeColor = resources.getColor(R.color.red)
+                        addressSince.editText?.error = "Invalid address length"
+                        addressSince.error = "Invalid address length"
+                    }else{
+                        addressSince.boxStrokeColor = resources.getColor(R.color.black)
+                        addressSince.editText?.error = null
+                        addressSince.error = null
+                    }
+                }else{
+                    addressSince.editText?.error = "Field must not be empty"
+                    addressSince.error = "Field must not be empty"
+                    addressSinceFilled = false
+                }
+            }
+            email -> {
+                if (email.editText?.text.toString() != ""){
+                    if (!email.editText!!.text.toString().contains("@")){
+                        email.boxStrokeColor = resources.getColor(R.color.red)
+                        email.editText?.error = "Invalid email"
+                        email.error = "Invalid email"
+                    }else{
+                        email.boxStrokeColor = resources.getColor(R.color.black)
+                        email.editText?.error = null
+                        email.error = null
+                    }
+                }else{
+                    email.editText?.error = "Field must not be empty"
+                    email.error = "Field must not be empty"
+                    emailFilled = false
+                }
+            }
+            employer -> {
+                if (employer.editText?.text.toString() != ""){
+                    if (employer.editText!!.text.toString().length < 2 ||
+                            employer.editText!!.text.toString().length > 128){
+                        employer.boxStrokeColor = resources.getColor(R.color.red)
+                        employer.editText?.error = "Invalid employer"
+                        employer.error = "Invalid employer"
+                    }else{
+                        employer.boxStrokeColor = resources.getColor(R.color.black)
+                        employer.editText?.error = null
+                        employer.error = null
+                    }
+                }else{
+                    employer.editText?.error = "Field must not be empty"
+                    employer.error = "Field must not be empty"
+                    employerFilled = false
+                }
+            }
+            jobTitle -> {
+                if (jobTitle.editText?.text.toString() != ""){
+                    if (jobTitle.editText!!.text.toString().length < 2 ||
+                            jobTitle.editText!!.text.toString().length > 128){
+                        jobTitle.boxStrokeColor = resources.getColor(R.color.red)
+                        jobTitle.editText?.error = "Invalid job title"
+                        jobTitle.error = "Invalid job title"
+                    }else{
+                        jobTitle.boxStrokeColor = resources.getColor(R.color.black)
+                        jobTitle.editText?.error = null
+                        jobTitle.error = null
+                    }
+                }else{
+                    jobTitle.editText?.error = "Field must not be empty"
+                    jobTitle.error = "Field must not be empty"
+                    jobTitleFilled = false
+                }
+            }
+            employedMonth -> {
+                if (employedMonth.editText?.text.toString() != ""){
+                    if (employedMonth.editText!!.text.toString().toInt() < 1 ||
+                            employedMonth.editText!!.text.toString().toInt() > 60){
+                        employedMonth.boxStrokeColor = resources.getColor(R.color.red)
+                        employedMonth.editText?.error = "Invalid employed range"
+                        employedMonth.error = "Invalid employed range"
+                    }else{
+                        employedMonth.boxStrokeColor = resources.getColor(R.color.black)
+                        employedMonth.editText?.error = null
+                        employedMonth.error = null
+                    }
+                }else{
+                    employedMonth.editText?.error = "Field must not be empty"
+                    employedMonth.error = "Field must not be empty"
+                    employedMonthFilled = false
+                }
+            }
+            monthlyIncome -> {
+                if (monthlyIncome.editText?.text.toString() != ""){
+                    if (monthlyIncome.editText!!.text.toString().toInt() < 1126 ||
+                            monthlyIncome.editText!!.text.toString().toInt() > 6000){
+                        monthlyIncome.boxStrokeColor = resources.getColor(R.color.red)
+                        monthlyIncome.editText?.error = "Invalid income"
+                        monthlyIncome.error = "Invalid income"
+                    }else{
+                        monthlyIncome.boxStrokeColor = resources.getColor(R.color.black)
+                        monthlyIncome.editText?.error = null
+                        monthlyIncome.error = null
+                    }
+                }else{
+                    monthlyIncome.editText?.error = "Field must not be empty"
+                    monthlyIncome.error = "Field must not be empty"
+                    monthlyIncomeFilled = false
+                }
+            }
+            driversLicenseState -> {
+                if (driversLicenseState.editText?.text.toString() != ""){
+                    if (!driversLicenseState.editText!!.text.toString().matches("[A-Z]+".toRegex())){
+                        driversLicenseState.boxStrokeColor = resources.getColor(R.color.red)
+                        driversLicenseState.editText?.error = "Field must contain only capital letters"
+                        driversLicenseState.error = "Field must contain only capital letters"
+                    }else{
+                        driversLicenseState.boxStrokeColor = resources.getColor(R.color.black)
+                        driversLicenseState.editText?.error = null
+                        driversLicenseState.error = null
+                    }
+                }else{
+                    driversLicenseState.editText?.error = "Field must not be empty"
+                    driversLicenseState.error = "Field must not be empty"
+                    driversLicenseStateFilled = false
+                }
+            }
+            bankName -> {
+                if (bankName.editText?.text.toString() != ""){
+                    if (bankName.editText!!.text.toString().length < 2 ||
+                            bankName.editText!!.text.toString().length > 128){
+                        bankName.boxStrokeColor = resources.getColor(R.color.red)
+                        bankName.editText?.error = "Invalid bank name"
+                        bankName.error = "Invalid bank name"
+                    }else{
+                        bankName.boxStrokeColor = resources.getColor(R.color.black)
+                        bankName.editText?.error = null
+                        bankName.error = null
+                    }
+                }else{
+                    bankName.editText?.error = "Field must not be empty"
+                    bankName.error = "Field must not be empty"
+                    bankNameFilled = false
+                }
+            }
+            bankAba -> {
+                if (bankAba.editText?.text.toString() != ""){
+                    if (bankAba.editText!!.text.toString().length != 9){
+                        bankAba.boxStrokeColor = resources.getColor(R.color.red)
+                        bankAba.editText?.error = "Field must contain 9 numbers"
+                        bankAba.error = "Field must contain 9 numbers"
+                    }else{
+                        bankAba.boxStrokeColor = resources.getColor(R.color.black)
+                        bankAba.editText?.error = null
+                        bankAba.error = null
+                    }
+                }else{
+                    bankAba.editText?.error = "Field must not be empty"
+                    bankAba.error = "Field must not be empty"
+                    bankAbaFilled = false
+                }
+            }
+            bankAccount -> {
+                if (bankAccount.editText?.text.toString() != ""){
+                    if (bankAccount.editText!!.text.toString().length < 4 ||
+                            bankAccount.editText!!.text.toString().length > 30){
+                        bankAccount.boxStrokeColor = resources.getColor(R.color.red)
+                        bankAccount.editText?.error = "Invalid bank account"
+                        bankAccount.error = "Invalid bank account"
+                    }else{
+                        bankAccount.boxStrokeColor = resources.getColor(R.color.black)
+                        bankAccount.editText?.error = null
+                        bankAccount.error = null
+                    }
+                }else{
+                    bankAccount.editText?.error = "Field must not be empty"
+                    bankAccount.error = "Field must not be empty"
+                    bankAccountFilled = false
+                }
+            }
+            ssn -> {
+                if (ssn.editText?.text.toString() != ""){
+                    if (ssn.editText!!.text.toString().length != 9){
+                        ssn.boxStrokeColor = resources.getColor(R.color.red)
+                        ssn.editText?.error = "Field must contain 9 numbers"
+                        ssn.error = "Field must contain 9 numbers"
+                    }else{
+                        ssn.boxStrokeColor = resources.getColor(R.color.black)
+                        ssn.editText?.error = null
+                        ssn.error = null
+                    }
+                }else{
+                    ssn.editText?.error = "Field must not be empty"
+                    ssn.error = "Field must not be empty"
+                    ssnFilled = false
+                }
+            }
+            bankAccountSince -> {
+                if (bankAccountSince.editText?.text.toString() != ""){
+                    if (bankAccountSince.editText!!.text.toString().toInt() < 1 ||
+                            bankAccountSince.editText!!.text.toString().toInt() > 30){
+                        bankAccountSince.boxStrokeColor = resources.getColor(R.color.red)
+                        bankAccountSince.editText?.error = "Invalid bank account length"
+                        bankAccountSince.error = "Invalid bank account length"
+                    }else{
+                        bankAccountSince.boxStrokeColor = resources.getColor(R.color.black)
+                        bankAccountSince.editText?.error = null
+                        bankAccountSince.error = null
+                    }
+                }else{
+                    bankAccountSince.editText?.error = "Field must not be empty"
+                    bankAccountSince.error = "Field must not be empty"
+                    bankAccountSinceFilled = false
+                }
+            }
+            birthDate -> {
+                val cal = Calendar.getInstance()
+                val sdf = SimpleDateFormat("yyyy-MM-dd")
+                cal.time = sdf.parse(birthDate.editText?.text.toString())
+                val today = Calendar.getInstance()
+                var age = today.get(Calendar.YEAR) - cal.get(Calendar.YEAR)
+
+                if (today.get(Calendar.DAY_OF_YEAR) < cal.get(Calendar.DAY_OF_YEAR)) {
+                    age--
+                }
+                if (age < 18 || age > 95){
+                    birthDate.boxStrokeColor = resources.getColor(R.color.red)
+                    birthDate.error = "Your age should be greater than 18 and less than 95"
+                    Toast.makeText(this, "Your age should be greater than 18 and less than 95", Toast.LENGTH_LONG).show()
+                }else{
+                    birthDate.boxStrokeColor = resources.getColor(R.color.black)
+                    birthDate.error = null
+                }
+            }
+            payDate1 -> {
+                val cal = Calendar.getInstance()
+                val sdf = SimpleDateFormat("yyyy-MM-dd")
+                cal.time = sdf.parse(payDate1.editText?.text.toString())
+                val today = Calendar.getInstance()
+                if (!cal.after(today)){
+                    payDate1.boxStrokeColor = resources.getColor(R.color.red)
+                    payDate1.error = "Pay date 1 should be after today's date"
+                    Toast.makeText(this, "Pay date 1 should be after today's date", Toast.LENGTH_LONG).show()
+                }else{
+                    payDate1.boxStrokeColor = resources.getColor(R.color.black)
+                    payDate1.error = null
+                }
+            }
+            payDate2 -> {
+                val sdf = SimpleDateFormat("yyyy-MM-dd")
+                val date2 = Calendar.getInstance()
+                date2.time = sdf.parse(payDate2.editText?.text.toString())
+                val date1 = Calendar.getInstance()
+                date1.time = sdf.parse(payDate1.editText?.text.toString())
+                if (!date2.after(date1)){
+                    payDate2.boxStrokeColor = resources.getColor(R.color.red)
+                    payDate2.error = "Pay date 2 should be after Pay date 1"
+                    Toast.makeText(this, "Pay date 2 should be after Pay date 1", Toast.LENGTH_LONG).show()
+                }else{
+                    payDate2.boxStrokeColor = resources.getColor(R.color.black)
+                    payDate2.error = null
+                }
+            }
+        }
+    }
+
     private inner class SingleWatcher : TextWatcher {
         override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, after: Int) {}
         override fun onTextChanged(charSequence: CharSequence, i: Int, before: Int, i2: Int) {}
@@ -814,42 +1210,54 @@ class QuestionnaireActivity : AppCompatActivity() {
             when {
                 isEqual(requestedAmount, editable) -> {
                     requestedAmountFilled = true
+                    checkFields(requestedAmount)
                 }
                 isEqual(firstName, editable) -> {
                     firstNameFilled = true
+                    checkFields(firstName)
                 }
                 isEqual(lastName, editable) -> {
                     lastNameFilled = true
+                    checkFields(lastName)
                 }
                 isEqual(zip, editable) -> {
                     zipFilled = true
+                    checkFields(zip)
                 }
                 isEqual(state, editable) -> {
                     stateFilled = true
+                    checkFields(state)
                 }
                 isEqual(city, editable) -> {
                     cityFilled = true
+                    checkFields(city)
                 }
                 isEqual(address, editable)  -> {
                     addressFilled = true
+                    checkFields(address)
                 }
                 isEqual(addressSince, editable) -> {
                     addressSinceFilled = true
+                    checkFields(addressSince)
                 }
                 isEqual(birthDate, editable) -> {
                     birthDateFilled = true
+                    checkFields(birthDate)
                 }
                 isEqual(email, editable) -> {
                     emailFilled = true
+                    checkFields(email)
                 }
                 isEqual(ownHome, editable) -> {
                     ownHomeFilled = true
                 }
                 isEqual(homePhone, editable) -> {
                     homePhoneFilled = true
+                    checkFields(homePhone)
                 }
                 isEqual(workPhone, editable) -> {
                     workPhoneFilled = true
+                    checkFields(workPhone)
                 }
                 isEqual(military, editable) -> {
                     militaryFilled = true
@@ -859,42 +1267,55 @@ class QuestionnaireActivity : AppCompatActivity() {
                 }
                 isEqual(employer, editable) -> {
                     employerFilled = true
+                    checkFields(employer)
                 }
                 isEqual(jobTitle, editable) -> {
                     jobTitleFilled = true
+                    checkFields(jobTitle)
                 }
                 isEqual(employedMonth, editable) -> {
                     employedMonthFilled = true
+                    checkFields(employedMonth)
                 }
                 isEqual(monthlyIncome, editable) -> {
                     monthlyIncomeFilled = true
+                    checkFields(monthlyIncome)
                 }
                 isEqual(payDate1, editable) -> {
                     payDate1Filled = true
+                    checkFields(payDate1)
                 }
                 isEqual(payDate2, editable) -> {
                     payDate2Filled = true
+                    checkFields(payDate2)
                 }
                 isEqual(payFrequency, editable) -> {
                     payFrequencyFilled = true
+                    checkFields(payFrequency)
                 }
                 isEqual(driversLicense, editable) -> {
                     driversLicenseFilled = true
+                    checkFields(driversLicense)
                 }
                 isEqual(driversLicenseState, editable) -> {
                     driversLicenseStateFilled = true
+                    checkFields(driversLicenseState)
                 }
                 isEqual(bankName, editable) -> {
                     bankNameFilled = true
+                    checkFields(bankName)
                 }
                 isEqual(bankPhone, editable) -> {
                     bankPhoneFilled = true
+                    checkFields(bankPhone)
                 }
                 isEqual(bankAba, editable) -> {
                     bankAbaFilled = true
+                    checkFields(bankAba)
                 }
                 isEqual(bankAccount, editable) -> {
                     bankAccountFilled = true
+                    checkFields(bankAccount)
                 }
                 isEqual(bankAccountType, editable) -> {
                     bankAccountTypeFilled = true
@@ -904,9 +1325,11 @@ class QuestionnaireActivity : AppCompatActivity() {
                 }
                 isEqual(ssn, editable) -> {
                     ssnFilled = true
+                    checkFields(ssn)
                 }
                 isEqual(bankAccountSince, editable) -> {
                     bankAccountSinceFilled = true
+                    checkFields(bankAccountSince)
                 }
                 isEqual(incomeType, editable) -> {
                     incomeTypeFilled = true

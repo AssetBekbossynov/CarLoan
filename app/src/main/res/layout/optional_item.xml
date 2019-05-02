@@ -16,6 +16,7 @@
         android:layout_marginTop="16dp"
         android:paddingBottom="4dp"
         android:orientation="horizontal"
+        app:errorEnabled="true"
         android:textColorHint="@color/gray"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -7,5 +7,6 @@ data class CustomResponse(@SerializedName("status") var status: String,
                           @SerializedName("price") var price: Double,
                           @SerializedName("url") var url: String,
                           @SerializedName("message") var message: String,
-                          @SerializedName("reject_url") var rejectUrl: String) {
+                          @SerializedName("reject_url") var rejectUrl: String,
+                          @SerializedName("content") var content: Content?) {
 }

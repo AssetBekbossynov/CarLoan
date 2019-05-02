@@ -16,7 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:appComponentFactory">
-        <activity android:name="kz.assetbekbossynov.carloan.AboutActivity"></activity>
+        <activity android:name="kz.assetbekbossynov.carloan.AboutActivity"
+            android:screenOrientation="portrait"/>
 
         <meta-data
             android:name="io.fabric.ApiKey"

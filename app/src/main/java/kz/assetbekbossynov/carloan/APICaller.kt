@@ -23,12 +23,13 @@ object APICaller {
         val okHttpClient = OkHttpClient.Builder()
                 .readTimeout(60, TimeUnit.SECONDS)
                 .connectTimeout(60, TimeUnit.SECONDS)
-        okHttpClient.addInterceptor(interceptor)
+                .addInterceptor(interceptor)
+                .build()
 
         val retrofit = Retrofit.Builder()
                 .baseUrl("https://leadsgate.com/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
-                .client(okHttpClient.build())
+                .client(okHttpClient)
                 .build()
 
 

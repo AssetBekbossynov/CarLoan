@@ -13,6 +13,7 @@
         layout="@layout/toolbar"/>
 
     <ScrollView
+        android:id="@+id/scroll"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:background="@color/white">
@@ -85,7 +86,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
-                layout="@layout/input_item"/>
+                layout="@layout/optional_item"/>
 
             <include
                 android:id="@+id/email"
@@ -162,14 +163,14 @@
                 android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
-                layout="@layout/input_item"/>
+                layout="@layout/optional_item"/>
 
             <include
                 android:id="@+id/pay_date2"
                 android:layout_marginTop="8dp"
                 android:layout_height="60dp"
                 android:layout_width="match_parent"
-                layout="@layout/input_item"/>
+                layout="@layout/optional_item"/>
 
             <include
                 android:id="@+id/pay_frequency"

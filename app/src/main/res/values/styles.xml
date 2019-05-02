@@ -19,4 +19,8 @@
         <item name="android:typeface">normal</item>
     </style>
 
+    <style name="MyDatePickerSpinnerStyle">
+        <item name="android:colorControlNormal">@color/main</item>
+    </style>
+
 </resources>
