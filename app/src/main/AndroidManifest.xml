@@ -35,6 +35,9 @@
         <activity
             android:name="kz.assetbekbossynov.carloan.QuestionnaireActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name="kz.assetbekbossynov.carloan.PolicyActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

@@ -33,5 +33,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, AboutActivity::class.java)
             startActivity(intent)
         }
+
+        privacy.setOnClickListener {
+            val intent = Intent(this, PolicyActivity::class.java)
+            startActivity(intent)
+        }
     }
 }

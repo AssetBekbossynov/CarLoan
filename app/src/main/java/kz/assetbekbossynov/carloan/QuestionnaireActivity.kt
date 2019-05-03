@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.TextInputLayout
@@ -33,6 +34,8 @@ import android.net.wifi.WifiManager
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import com.crashlytics.android.answers.Answers
+import com.crashlytics.android.answers.CustomEvent
 import io.fabric.sdk.android.Fabric
 import kotlinx.android.synthetic.main.expandable_item.view.*
 import java.io.BufferedReader
@@ -131,7 +134,9 @@ class QuestionnaireActivity : AppCompatActivity() {
     var max: Int = 0
     var min: Int = 100
 
-    var call = 0
+    var militaryStatus = ""
+    var residence = ""
+    var depositStatus = ""
 
     var text = ""
 
@@ -148,6 +153,11 @@ class QuestionnaireActivity : AppCompatActivity() {
 
         backbutton.setOnClickListener {
             onBackPressed()
+        }
+
+        policy.setOnClickListener {
+            val intent = Intent(this, PolicyActivity::class.java)
+            startActivity(intent)
         }
 
         timeToCallList = ArrayList(Arrays.asList(*resources.getStringArray(R.array.time_to_call_list)))
@@ -175,6 +185,42 @@ class QuestionnaireActivity : AppCompatActivity() {
 
         next.setOnClickListener {
             if(next.isEnabled){
+                Answers.getInstance().logCustom(CustomEvent("SEND_BTN_" + session_id)
+                        .putCustomAttribute("requestedAmount", requestedAmount.editText?.text!!.toString())
+                        .putCustomAttribute("employer", employer.editText?.text!!.toString())
+                        .putCustomAttribute("jobTitle", jobTitle.editText?.text!!.toString())
+                        .putCustomAttribute("employedMonth", employedMonth.editText?.text!!.toString())
+                        .putCustomAttribute("monthlyIncome", monthlyIncome.editText?.text!!.toString())
+                        .putCustomAttribute("payDate1", payDate1.editText?.text!!.toString())
+                        .putCustomAttribute("payDate2", payDate2.editText?.text!!.toString())
+                        .putCustomAttribute("payFrequency", payFrequency.editText?.text!!.toString())
+                        .putCustomAttribute("driversLicense", driversLicense.editText?.text!!.toString())
+                        .putCustomAttribute("bankName", bankName.editText?.text!!.toString())
+                        .putCustomAttribute("bankPhone", bankPhone.editText?.text!!.toString())
+                        .putCustomAttribute("bankAba", bankAba.editText?.text!!.toString())
+                        .putCustomAttribute("bankAccount", bankAccount.editText?.text!!.toString())
+                        .putCustomAttribute("bankAccountType", bankAccountType.editText?.text!!.toString())
+                        .putCustomAttribute("depositStatus", depositStatus)
+                        .putCustomAttribute("firstName", firstName.editText?.text!!.toString())
+                        .putCustomAttribute("lastName", lastName.editText?.text!!.toString())
+                        .putCustomAttribute("ssn", ssn.editText?.text!!.toString())
+                        .putCustomAttribute("birthDate", birthDate.editText?.text!!.toString())
+                        .putCustomAttribute("residence", residence)
+                        .putCustomAttribute("address", address.editText?.text!!.toString())
+                        .putCustomAttribute("city", city.editText?.text!!.toString())
+                        .putCustomAttribute("state", state.editText?.text!!.toString())
+                        .putCustomAttribute("zip", zip.editText?.text!!.toString())
+                        .putCustomAttribute("email", email.editText?.text!!.toString())
+                        .putCustomAttribute("homePhone", homePhone.editText?.text!!.toString())
+                        .putCustomAttribute("workPhone", workPhone.editText?.text!!.toString())
+                        .putCustomAttribute("timeToCall", timeToCall.editText?.text!!.toString())
+                        .putCustomAttribute("militaryStatus", militaryStatus)
+                        .putCustomAttribute("addressSince", addressSince.editText?.text!!.toString())
+                        .putCustomAttribute("bankAccountSince", bankAccountSince.editText?.text!!.toString())
+                        .putCustomAttribute("incomeType", incomeType.editText?.text!!.toString())
+                        .putCustomAttribute("session_id", session_id)
+                        .putCustomAttribute("client_ip_address", client_ip_address))
+
                 sendData()
             }else{
                 Toast.makeText(this, "All fields must be filled", Toast.LENGTH_SHORT).show()
@@ -443,7 +489,7 @@ class QuestionnaireActivity : AppCompatActivity() {
         faq.setOnClickListener { toggleLayout(faq) }
         disclaimer.setOnClickListener { toggleLayout(disclaimer) }
 
-        fillFields()
+//        fillFields()
     }
 
     private fun fillFields(){
@@ -593,21 +639,21 @@ class QuestionnaireActivity : AppCompatActivity() {
 
     fun sendData(){
 
-        var residence = ownHome.editText?.text.toString()
+        residence = ownHome.editText?.text.toString()
         val rArr = resources.getStringArray(R.array.residence_status)
         when (residence) {
             rArr[0] -> residence = "1"
             rArr[1] -> residence = "0"
         }
 
-        var militaryStatus = military.editText?.text.toString()
+        militaryStatus = military.editText?.text.toString()
         val mArr = resources.getStringArray(R.array.military_status)
         when (militaryStatus) {
             mArr[0] -> militaryStatus = "1"
             mArr[1] -> militaryStatus = "0"
         }
 
-        var depositStatus = directDeposit.editText?.text.toString()
+        depositStatus = directDeposit.editText?.text.toString()
         val dArr = resources.getStringArray(R.array.deposit_status)
         when (depositStatus) {
             dArr[0] -> depositStatus = "1"
@@ -761,9 +807,8 @@ class QuestionnaireActivity : AppCompatActivity() {
                             }
 
                             runOnUiThread {
-                                Crashlytics.log(response.toString())
+                                Answers.getInstance().logCustom(CustomEvent("SEND_ERROR $response"))
                                 dialog?.dismiss()
-//                                Toast.makeText(baseContext, responseBody.message, Toast.LENGTH_LONG).show()
                             }
                         }else if (responseBody.status == "success"){
                             runOnUiThread {
