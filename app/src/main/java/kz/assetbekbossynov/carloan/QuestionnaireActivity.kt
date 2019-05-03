@@ -381,8 +381,16 @@ class QuestionnaireActivity : AppCompatActivity() {
         birth_date.setOnClickListener { showCustomDialog(birthDate.editText) }
         birthDate.editText?.setOnClickListener { showCustomDialog(birthDate.editText) }
 
-        pay_date1.setOnClickListener { showCustomDialog(payDate1.editText) }
-        payDate1.editText?.setOnClickListener { showCustomDialog(payDate1.editText) }
+        pay_date1.setOnClickListener {
+            if (payDate2.editText?.text.toString() != "")
+                payDate2.editText?.setText("")
+            showCustomDialog(payDate1.editText)
+        }
+        payDate1.editText?.setOnClickListener {
+            if (payDate2.editText?.text.toString() != "")
+                payDate2.editText?.setText("")
+            showCustomDialog(payDate1.editText)
+        }
 
         pay_date2.setOnClickListener {
             if (payDate1Filled)
@@ -443,7 +451,7 @@ class QuestionnaireActivity : AppCompatActivity() {
             requestedAmount.editText?.setText("500")
             firstName.editText?.setText("Will")
             lastName.editText?.setText("Smith")
-            zip.editText?.setText("00000")
+            zip.editText?.setText("12288")
             state.editText?.setText("CA")
             city.editText?.setText("Los Angeles")
             address.editText?.setText("123 Test address")
@@ -755,7 +763,7 @@ class QuestionnaireActivity : AppCompatActivity() {
                             runOnUiThread {
                                 Crashlytics.log(response.toString())
                                 dialog?.dismiss()
-                                Toast.makeText(baseContext, responseBody.message, Toast.LENGTH_LONG).show()
+//                                Toast.makeText(baseContext, responseBody.message, Toast.LENGTH_LONG).show()
                             }
                         }else if (responseBody.status == "success"){
                             runOnUiThread {
@@ -799,11 +807,23 @@ class QuestionnaireActivity : AppCompatActivity() {
     }
 
     fun gotoErrorField(v: TextInputLayout, msg: String?){
-        runOnUiThread {
-            scroll.fullScroll(ScrollView.FOCUS_UP)
-            v.error = msg?.replace("_", " ")
-            v.editText?.error = "!!!"
-            Toast.makeText(this, "${msg?.replace("_", " ")}", Toast.LENGTH_LONG).show()
+        when (v){
+            payDate1 -> {
+                runOnUiThread {
+                    scroll.scrollTo(0, v.bottom)
+                    v.error = msg?.replace("_", " ")
+                    v.editText?.error = "This field did not pass the validation. Please check it!!!"
+                    Toast.makeText(this, "Choose another date for payment", Toast.LENGTH_LONG).show()
+                }
+            }
+            else -> {
+                runOnUiThread {
+                    scroll.fullScroll(ScrollView.FOCUS_UP)
+                    v.error = msg?.replace("_", " ")
+                    v.editText?.error = "This field did not pass the validation. Please check it!!!"
+                    Toast.makeText(this, "${msg?.replace("_", " ")}", Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 
@@ -1168,36 +1188,43 @@ class QuestionnaireActivity : AppCompatActivity() {
                     Toast.makeText(this, "Your age should be greater than 18 and less than 95", Toast.LENGTH_LONG).show()
                 }else{
                     birthDate.boxStrokeColor = resources.getColor(R.color.black)
+                    birthDate.editText?.error = null
                     birthDate.error = null
                 }
             }
             payDate1 -> {
-                val cal = Calendar.getInstance()
-                val sdf = SimpleDateFormat("yyyy-MM-dd")
-                cal.time = sdf.parse(payDate1.editText?.text.toString())
-                val today = Calendar.getInstance()
-                if (!cal.after(today)){
-                    payDate1.boxStrokeColor = resources.getColor(R.color.red)
-                    payDate1.error = "Pay date 1 should be after today's date"
-                    Toast.makeText(this, "Pay date 1 should be after today's date", Toast.LENGTH_LONG).show()
-                }else{
-                    payDate1.boxStrokeColor = resources.getColor(R.color.black)
-                    payDate1.error = null
+                if (payDate1.editText?.text.toString() != ""){
+                    val cal = Calendar.getInstance()
+                    val sdf = SimpleDateFormat("yyyy-MM-dd")
+                    cal.time = sdf.parse(payDate1.editText?.text.toString())
+                    val today = Calendar.getInstance()
+                    if (!cal.after(today)){
+                        payDate1.boxStrokeColor = resources.getColor(R.color.red)
+                        payDate1.error = "Pay date 1 should be after today's date"
+                        Toast.makeText(this, "Pay date 1 should be after today's date", Toast.LENGTH_LONG).show()
+                    }else{
+                        payDate1.boxStrokeColor = resources.getColor(R.color.black)
+                        payDate1.editText?.error = null
+                        payDate1.error = null
+                    }
                 }
             }
             payDate2 -> {
-                val sdf = SimpleDateFormat("yyyy-MM-dd")
-                val date2 = Calendar.getInstance()
-                date2.time = sdf.parse(payDate2.editText?.text.toString())
-                val date1 = Calendar.getInstance()
-                date1.time = sdf.parse(payDate1.editText?.text.toString())
-                if (!date2.after(date1)){
-                    payDate2.boxStrokeColor = resources.getColor(R.color.red)
-                    payDate2.error = "Pay date 2 should be after Pay date 1"
-                    Toast.makeText(this, "Pay date 2 should be after Pay date 1", Toast.LENGTH_LONG).show()
-                }else{
-                    payDate2.boxStrokeColor = resources.getColor(R.color.black)
-                    payDate2.error = null
+                if (payDate2.editText?.text.toString() != ""){
+                    val sdf = SimpleDateFormat("yyyy-MM-dd")
+                    val date2 = Calendar.getInstance()
+                    date2.time = sdf.parse(payDate2.editText?.text.toString())
+                    val date1 = Calendar.getInstance()
+                    date1.time = sdf.parse(payDate1.editText?.text.toString())
+                    if (!date2.after(date1)){
+                        payDate2.boxStrokeColor = resources.getColor(R.color.red)
+                        payDate2.error = "Pay date 2 should be after Pay date 1"
+                        Toast.makeText(this, "Pay date 2 should be after Pay date 1", Toast.LENGTH_LONG).show()
+                    }else{
+                        payDate2.boxStrokeColor = resources.getColor(R.color.black)
+                        payDate2.editText?.error = null
+                        payDate2.error = null
+                    }
                 }
             }
         }
